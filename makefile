@@ -47,17 +47,21 @@ down: ## 🧯 Stop a specific container (e.g. make down service=adminer)
 	echo "🛑 Stopping service: $(service)..."; \
 	docker compose stop $(service)
 
-restart: ## ♻️ Restart a specific container (e.g. make restart service=app)
+restart: ## ♻️ Restart a specific container (e.g. make restart service=api)
 	@if [ -z "$(service)" ]; then \
-		echo "❌ Please provide a service name: make restart service=app"; \
+		echo "❌ Please provide a service name: make restart service=api"; \
 		exit 1; \
 	fi; \
 	echo "🔄 Restarting service: $(service)..."; \
 	docker compose restart $(service)
 
-logs: ## 📜 Show logs of a specific container (e.g. make logs service=app)
+restart-all: ## ♻️ Restart all containers
+	@echo "🔄 Restarting all containers..."
+	docker compose restart
+
+logs: ## 📜 Show logs of a specific container (e.g. make logs service=api)
 	@if [ -z "$(service)" ]; then \
-		echo "❌ Please provide a service name: make logs service=app"; \
+		echo "❌ Please provide a service name: make logs service=api"; \
 		exit 1; \
 	fi; \
 	echo "📜 Showing logs for service: $(service)..."; \
@@ -65,12 +69,12 @@ logs: ## 📜 Show logs of a specific container (e.g. make logs service=app)
 
 api-logs: ## 📄 Show Symfony API logs (dev environment)
 	@echo "📄 Reading Symfony API logs (dev)..."
-	docker compose exec app tail -f var/log/dev.log
+	docker compose exec api tail -f var/log/dev.log
 
 
-connect: ## 🐚 Open a shell in a specific container (e.g. make connect service=app)
+connect: ## 🐚 Open a shell in a specific container (e.g. make connect service=api)
 	@if [ -z "$(service)" ]; then \
-		echo "❌ Please provide a service name: make connect service=app"; \
+		echo "❌ Please provide a service name: make connect service=api"; \
 		exit 1; \
 	fi; \
 	echo "🐚 Connecting to container: $(service)..."; \
