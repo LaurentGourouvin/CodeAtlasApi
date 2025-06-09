@@ -21,9 +21,10 @@ link: ## 🔗 Display available URLs for local services
 	@echo ""
 	@echo "🔗 Access your local services:"
 	@echo "-----------------------------------"
-	@echo "🧠 Symfony API        → http://localhost:8088"
-	@echo "🗃️  Adminer (DB UI)   → http://localhost:8080"
-	@echo "🐘 PostgreSQL         → used internally by Symfony"
+	@printf "🚀  %-22s → %s\n" "Symfony API" "http://localhost:8088"
+	@printf "📦  %-22s → %s\n" "Adminer (DB UI)" "http://localhost:8080"
+	@printf "📘  %-22s → %s\n" "Swagger API Platform" "http://localhost:8088/api"
+	@printf "🐘  %-22s → %s\n" "PostgreSQL" "used internally by Symfony"
 	@echo "-----------------------------------"
 
 status: ## 📊 Show container ID, image, name and status with colors
