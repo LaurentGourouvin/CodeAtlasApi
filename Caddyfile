@@ -2,5 +2,5 @@
 
 root * /var/www/symfony/public
 
-php_fastcgi app:9000
+php_fastcgi api:9000
 file_server
