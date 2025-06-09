@@ -1,0 +1,44 @@
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: codeatlas_app
+    volumes:
+      - .:/var/www/symfony
+    ports:
+      - "9000:9000"
+    depends_on:
+      - db
+
+  db:
+    image: postgres:17.5-alpine3.22
+    container_name: codeatlas_db
+    environment:
+      POSTGRES_DB: codeatlas
+      POSTGRES_USER: symfony
+      POSTGRES_PASSWORD: symfony
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+
+  adminer:
+    image: adminer
+    container_name: codeatlas_adminer
+    ports:
+      - "8080:8080"
+
+  caddy:
+    image: caddy:2
+    container_name: codeatlas_caddy
+    depends_on:
+      - app
+    ports:
+      - "8088:80"
+    volumes:
+      - .:/var/www/symfony
+      - ./Caddyfile:/etc/caddy/Caddyfile
+volumes:
+  db_data:
