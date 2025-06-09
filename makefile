@@ -84,6 +84,10 @@ connect: ## 🐚 Open a shell in a specific container (e.g. make connect service
 		docker compose exec $(service) sh; \
 	fi
 
+run-test: ## 🧪 Run PHPUnit tests from inside the api container
+	@echo "🧪 Running tests in 'api' container..."
+	docker compose exec api php bin/phpunit
+
 help: ## 📖 Show available Make commands
 	@echo ""
 	@echo "📘 Available commands:"
