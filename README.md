@@ -90,6 +90,6 @@ codeatlas-api/
 
 ## 👤 Author
 
-Built by **@saokore**
+Built by **@GourouvinLaurent**
 
 _"No matter your level, a dev learns something new every day — that’s the beauty of it."_ 😎
