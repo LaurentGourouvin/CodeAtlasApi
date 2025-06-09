@@ -10,6 +10,8 @@
 
 - **PHP**: 8.3
 - **Framework**: Symfony 7
+- **Testing**: PHPUnit (via `symfony/test-pack`)  
+- **Authentication & Authorization**: Keycloak  
 - **API**: API Platform
 - **Database**: PostgreSQL
 - **Containerization**: Docker / Docker Compose

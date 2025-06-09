@@ -24,6 +24,7 @@ link: ## 🔗 Display available URLs for local services
 	@printf "🚀  %-22s → %s\n" "Symfony API" "http://localhost:8088"
 	@printf "📦  %-22s → %s\n" "Adminer (DB UI)" "http://localhost:8080"
 	@printf "📘  %-22s → %s\n" "Swagger API Platform" "http://localhost:8088/api"
+	@printf "🔏  %-22s → %s\n" "Keycloak UI" "http://localhost:8081"
 	@printf "🐘  %-22s → %s\n" "PostgreSQL" "used internally by Symfony"
 	@echo "-----------------------------------"
 

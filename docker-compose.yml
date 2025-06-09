@@ -11,6 +11,7 @@ services:
       - "9000:9000"
     depends_on:
       - db
+    restart: unless-stopped
 
   db:
     image: postgres:17.5-alpine3.22
@@ -23,12 +24,14 @@ services:
       - db_data:/var/lib/postgresql/data
     ports:
       - "5433:5432"
+    restart: unless-stopped
 
   adminer:
     image: adminer
     container_name: codeatlas_adminer
     ports:
       - "8080:8080"
+    restart: unless-stopped
 
   caddy:
     image: caddy:2
@@ -40,5 +43,42 @@ services:
     volumes:
       - .:/var/www/symfony
       - ./Caddyfile:/etc/caddy/Caddyfile
+    restart: unless-stopped
+
+  keycloak_db:
+    image: postgres:17.5-alpine3.22
+    container_name: codeatlas_keycloak_db
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak
+    volumes:
+      - keycloak_db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "keycloak"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    container_name: codeatlas_keycloak
+    command: start-dev
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak_db:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8081:8080"
+    depends_on:
+      keycloak_db:
+        condition: service_healthy
+    restart: unless-stopped
+  
 volumes:
   db_data:
+  keycloak_db_data:
