@@ -1,10 +1,10 @@
 
 services:
-  app:
+  api:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: codeatlas_app
+    container_name: codeatlas_api
     volumes:
       - .:/var/www/symfony
     ports:
@@ -34,7 +34,7 @@ services:
     image: caddy:2
     container_name: codeatlas_caddy
     depends_on:
-      - app
+      - api
     ports:
       - "8088:80"
     volumes:
