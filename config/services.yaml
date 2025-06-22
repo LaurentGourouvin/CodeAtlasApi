@@ -4,6 +4,12 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    keycloak.base_url: '%env(KEYCLOAK_BASE_URL)%'
+    keycloak.realm: '%env(KEYCLOAK_REALM)%'
+    keycloak.client_id: '%env(KEYCLOAK_CLIENT_ID)%'
+    keycloak.admin_user: '%env(KEYCLOAK_ADMIN_USER)%'
+    keycloak.admin_password: '%env(KEYCLOAK_ADMIN_PASSWORD)%'
+
 
 services:
     # default configuration for services in *this* file
@@ -22,3 +28,14 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    App\Infrastructure\User\Controller\:
+        resource: '../src/Infrastructure/User/Controller'
+        tags: ['controller.service_arguments']
+        autowire: true
+        autoconfigure: true
+    
+    App\Infrastructure\User\KeycloakUserAdapter:
+        arguments:
+            $keycloakBaseUrl: '%env(KEYCLOAK_BASE_URL)%'
+            $realm: '%env(KEYCLOAK_REALM)%'
