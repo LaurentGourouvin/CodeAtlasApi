@@ -2,9 +2,12 @@
 
 namespace App\Infrastructure\User;
 
+use App\Domain\User\Exception\UserNotFoundException;
 use App\Domain\User\Port\UserManagerInterface;
 use App\Infrastructure\Keycloak\Service\KeycloakTokenService;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+
 
 class KeycloakUserAdapter implements UserManagerInterface
 {
@@ -26,16 +29,24 @@ class KeycloakUserAdapter implements UserManagerInterface
 
         $url = sprintf('%s/admin/realms/%s/users/%s', $this->keycloakBaseUrl, $this->realm, $userId);
 
-        $this->httpClient->request(
-            'PUT',
-            $url,
-            [
-                'headers' => [
-                    'Authorization' => "Bearer $adminToken",
-                    'Content-Type' => 'application/json'
-                ],
-                'json' => ['enabled' => false]
-            ]
-        );
+        try {
+            $this->httpClient->request(
+                'PUT',
+                $url,
+                [
+                    'headers' => [
+                        'Authorization' => "Bearer $adminToken",
+                        'Content-Type' => 'application/json'
+                    ],
+                    'json' => ['enabled' => false]
+                ]
+            );
+        } catch (ClientExceptionInterface $e) {
+            if ($e->getCode() === 404) {
+                throw new UserNotFoundException("User not found.");
+            }
+            throw new \RuntimeException("An unexpected error occurred while processing the request");
+        }
+
     }
 }
