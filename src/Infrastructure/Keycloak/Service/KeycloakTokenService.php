@@ -5,6 +5,7 @@ namespace App\Infrastructure\Keycloak\Service;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Jose\Component\Core\JWKSet;
 use Jose\Component\Signature\Serializer\CompactSerializer;
+use Jose\Component\Core\AlgorithmManager;
 use Jose\Component\Signature\Algorithm\RS256;
 use Jose\Component\Signature\JWSVerifier;
 use Symfony\Component\HttpFoundation\Request;
@@ -68,7 +69,11 @@ class KeycloakTokenService
             $serializer = new CompactSerializer();
             $jws = $serializer->unserialize($keycloakJwt);
 
-            $verifier = new JWSVerifier([new RS256()]);
+            $algorithmManager = new AlgorithmManager([
+                new RS256()
+            ]);
+
+            $verifier = new JWSVerifier($algorithmManager);
 
             foreach ($jwkSet->all() as $jwk) {
                 if ($verifier->verifyWithKey($jws, $jwk, 0)) {
