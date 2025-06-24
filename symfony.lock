@@ -182,5 +182,8 @@
         "files": [
             "config/packages/validator.yaml"
         ]
+    },
+    "web-token/jwt-framework": {
+        "version": "4.0.4"
     }
 }

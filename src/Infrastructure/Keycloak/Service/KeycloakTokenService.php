@@ -2,8 +2,13 @@
 
 namespace App\Infrastructure\Keycloak\Service;
 
-use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Jose\Component\Core\JWKSet;
+use Jose\Component\Signature\Serializer\CompactSerializer;
+use Jose\Component\Signature\Algorithm\RS256;
+use Jose\Component\Signature\JWSVerifier;
+use Symfony\Component\HttpFoundation\Request;
+
 
 class KeycloakTokenService
 {
@@ -47,5 +52,38 @@ class KeycloakTokenService
         $data = $response->toArray();
 
         return $data['access_token'] ?? null;
+    }
+
+    public function validateTokenFromRequest(Request $request, string $keycloakJwt)
+    {
+        $jwksUri = sprintf('%s/realms/%s/protocol/openid-connect/certs', $this->keycloakUrl, $this->realm);
+
+        // TODO Mettre en place l'extraction du Bearer pour le vérifier à l'aide du code suivant
+
+        try {
+            $jwkRequest = $this->httpClient->request('GET', $jwksUri);
+            $jwkData = $jwkRequest->toArray();
+            $jwkSet = JWKSet::createFromKeyData($jwkData['keys']);
+
+            $serializer = new CompactSerializer();
+            $jws = $serializer->unserialize($keycloakJwt);
+
+            $verifier = new JWSVerifier([new RS256()]);
+
+            foreach ($jwkSet->all() as $jwk) {
+                if ($verifier->verifyWithKey($jws, $jwk, 0)) {
+                    $payload = json_decode($jws->getPayload(), true);
+                    if ($payload['exp'] < time()) {
+                        return null; // Expiré
+                    }
+                    return $payload; // ✅ Token valide
+                }
+            }
+
+            return null;
+        } catch (\Throwable) {
+
+        }
+
     }
 }
