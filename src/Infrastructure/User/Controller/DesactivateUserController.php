@@ -17,7 +17,7 @@ class DesactivateUserController extends AbstractController
     {
     }
 
-    #[Route('/api/users/{id}/desactivate', name: 'user_desasctivate', methods: ['POST'])]
+    #[Route('keycloak/users/{id}/desactivate', name: 'user_desasctivate', methods: ['POST'])]
     public function __invoke(string $id, NormalizerInterface $normalizer): JsonResponse
     {
         try {

@@ -10,8 +10,11 @@ class Kernel extends BaseKernel
 {
     use MicroKernelTrait;
 
-    protected function configureRoutes(RoutingConfigurator $routes): void
-    {
-        $routes->import('../src/Infrastructure/User/Controller/', 'attribute');
-    }
+    // Add this method will disable the routing from the route.yaml
+    // protected function configureRoutes(RoutingConfigurator $routes): void
+    // {
+    //     // $routes->import('../src/Infrastructure/User/Controller/', 'attribute');
+    //     // $routes->import('../config/routes/api_platform.yaml');
+    //     // $routes->import('../config/routes.yaml');
+    // }
 }
