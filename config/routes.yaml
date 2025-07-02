@@ -1,6 +1,12 @@
 controllers:
     resource: '../src/Controller/'
     type: attribute
+    prefix: /api
+
+keycload_user_controller:
+    resource: '../src/Infrastructure/User/Controller'
+    type: attribute
+    prefix: /api
 
 # nelmio_api_doc:
 #     path: /api/docs
