@@ -6,4 +6,5 @@ use Symfony\Component\HttpFoundation\Request;
 interface UserManagerInterface
 {
     public function desactivate(string $userId, Request $request): void;
+    public function synchronize(Request $request): void;
 }

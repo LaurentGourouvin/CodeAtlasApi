@@ -54,4 +54,8 @@ class KeycloakUserAdapter implements UserManagerInterface
         }
 
     }
+
+    public function synchronize(Request $request): void
+    {
+    }
 }

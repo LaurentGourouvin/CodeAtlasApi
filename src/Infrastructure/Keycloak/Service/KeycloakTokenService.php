@@ -69,6 +69,11 @@ class KeycloakTokenService
         return $this->validateAndExtractPayload($jws);
     }
 
+    public function synchUserFromKeycloakToDb(Request $request)
+    {
+        $token = $this->validateTokenFromRequest($request);
+    }
+
     private function extractTokenFromHeader(Request $request): string
     {
         $authHeader = $request->headers->get('Authorization');
