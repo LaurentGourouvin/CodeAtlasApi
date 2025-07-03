@@ -63,7 +63,7 @@ class KeycloakTokenService
     public function validateTokenFromRequest(Request $request)
     {
         $token = $this->extractTokenFromHeader($request);
-        $jws = $this->parseToken($token);
+        $jws = $this->parseKeycloakToken($token);
         $jwk = $this->resolveJwkForToken($jws);
         $this->verifySignature($jws, $jwk);
         return $this->validateAndExtractPayload($jws);
@@ -80,7 +80,7 @@ class KeycloakTokenService
         return substr($authHeader, 7);
     }
 
-    private function parseToken(string $token): JWS
+    private function parseKeycloakToken(string $token): JWS
     {
         $serializer = new CompactSerializer();
         return $serializer->unserialize($token);
