@@ -33,13 +33,13 @@ services:
         autoconfigure: true
         tags: ['serializer.normalizer']
 
-    App\Infrastructure\User\Controller\:
-        resource: '../src/Infrastructure/User/Controller'
+    App\Infrastructure\Keycloak\Controller\:
+        resource: '../src/Infrastructure/Keycloak/Controller'
         tags: ['controller.service_arguments']
         autowire: true
         autoconfigure: true
     
-    App\Infrastructure\User\KeycloakUserAdapter:
+    App\Infrastructure\Keycloak\Adapter\KeycloakUserAdapter:
         arguments:
             $keycloakBaseUrl: '%env(KEYCLOAK_BASE_URL)%'
             $realm: '%env(KEYCLOAK_REALM)%'

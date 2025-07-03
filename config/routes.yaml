@@ -3,8 +3,8 @@ controllers:
     type: attribute
     prefix: /api
 
-keycload_user_controller:
-    resource: '../src/Infrastructure/User/Controller'
+keycload_controller:
+    resource: '../src/Infrastructure/Keycloak/Controller'
     type: attribute
     prefix: /api
 

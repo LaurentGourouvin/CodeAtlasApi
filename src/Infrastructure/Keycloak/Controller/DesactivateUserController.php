@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Infrastructure\User\Controller;
+namespace App\Infrastructure\Keycloak\Controller;
 
 use App\Application\User\DesactivateUserHandler;
 use App\Domain\User\Exception\UserNotFoundException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use App\Infrastructure\Keycloak\Service\KeycloakTokenService;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use OpenApi\Attributes as OA;
 
@@ -43,10 +43,10 @@ class DesactivateUserController extends AbstractController
             )
         ]
     )]
-    public function __invoke(string $id, NormalizerInterface $normalizer): JsonResponse
+    public function __invoke(string $id, NormalizerInterface $normalizer, Request $request): JsonResponse
     {
         try {
-            $this->handler->handle($id);
+            $this->handler->handle($id, $request);
             return new JsonResponse(['message' => 'User desactivated']);
         } catch (UserNotFoundException $e) {
             return new JsonResponse(

@@ -1,8 +1,0 @@
-monolog:
-  channels: ['nelmio_api_doc']
-  handlers:
-    nelmio_api_doc:
-      type: stream
-      path: "%kernel.logs_dir%/nelmio_api_doc.log"
-      level: debug
-      channels: ['nelmio_api_doc']

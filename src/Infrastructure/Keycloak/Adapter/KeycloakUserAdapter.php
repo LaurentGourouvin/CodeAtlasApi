@@ -1,10 +1,12 @@
 <?php
 
-namespace App\Infrastructure\User;
+namespace App\Infrastructure\Keycloak\Adapter;
 
 use App\Domain\User\Exception\UserNotFoundException;
 use App\Domain\User\Port\UserManagerInterface;
 use App\Infrastructure\Keycloak\Service\KeycloakTokenService;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 
@@ -16,16 +18,19 @@ class KeycloakUserAdapter implements UserManagerInterface
         private readonly KeycloakTokenService $tokenService,
         private readonly string $keycloakBaseUrl,
         private readonly string $realm,
+        private readonly LoggerInterface $logger
     ) {
     }
 
-    public function desactivate(string $userId): void
+    public function desactivate(string $userId, Request $request): void
     {
         $adminToken = $this->tokenService->getAdminAccessToken();
 
         if (!$adminToken) {
             throw new \RuntimeException('Unable to retrieve Keycloak admin token.');
         }
+
+        $validateKeycloakToken = $this->tokenService->validateTokenFromRequest($request);
 
         $url = sprintf('%s/admin/realms/%s/users/%s', $this->keycloakBaseUrl, $this->realm, $userId);
 

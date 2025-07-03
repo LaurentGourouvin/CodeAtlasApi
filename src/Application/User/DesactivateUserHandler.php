@@ -3,6 +3,7 @@
 namespace App\Application\User;
 
 use App\Domain\User\Port\UserManagerInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 class DesactivateUserHandler
 {
@@ -10,8 +11,8 @@ class DesactivateUserHandler
     {
     }
 
-    public function handle(string $userId): void
+    public function handle(string $userId, Request $request): void
     {
-        $this->userManager->desactivate(userId: $userId);
+        $this->userManager->desactivate(userId: $userId, request: $request);
     }
 }
