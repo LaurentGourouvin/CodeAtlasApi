@@ -10,6 +10,8 @@ use Jose\Component\Core\AlgorithmManager;
 use Jose\Component\Signature\Algorithm\RS256;
 use Jose\Component\Signature\JWSVerifier;
 use Symfony\Component\HttpFoundation\Request;
+use Jose\Component\Signature\JWS;
+use Jose\Component\Core\JWK;
 
 
 class KeycloakTokenService
@@ -60,61 +62,78 @@ class KeycloakTokenService
 
     public function validateTokenFromRequest(Request $request)
     {
+        $token = $this->extractTokenFromHeader($request);
+        $jws = $this->parseToken($token);
+        $jwk = $this->resolveJwkForToken($jws);
+        $this->verifySignature($jws, $jwk);
+        return $this->validateAndExtractPayload($jws);
+    }
+
+    private function extractTokenFromHeader(Request $request): string
+    {
         $authHeader = $request->headers->get('Authorization');
 
         if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
             throw new \RuntimeException('No Bearer token found in Authorization header.');
         }
 
-        $token = substr($authHeader, 7);
+        return substr($authHeader, 7);
+    }
 
-        try {
-            $jwksUri = sprintf('%s/realms/%s/protocol/openid-connect/certs', $this->keycloakUrl, $this->realm);
-            $jwkData = $this->httpClient->request('GET', $jwksUri)->toArray();
+    private function parseToken(string $token): JWS
+    {
+        $serializer = new CompactSerializer();
+        return $serializer->unserialize($token);
+    }
 
-            $serializer = new CompactSerializer();
-            $jws = $serializer->unserialize($token);
+    private function resolveJwkForToken(JWS $jws): JWK
+    {
+        $jwksUri = sprintf('%s/realms/%s/protocol/openid-connect/certs', $this->keycloakUrl, $this->realm);
+        $jwkData = $this->httpClient->request('GET', $jwksUri)->toArray();
 
-            $header = $jws->getSignature(0)->getProtectedHeader();
-            $tokenKid = $header['kid'] ?? null;
+        $header = $jws->getSignature(0)->getProtectedHeader();
+        $tokenKid = $header['kid'] ?? null;
 
-            if (!$tokenKid) {
-                throw new \RuntimeException('No "kid" found in JWT header.');
-            }
-
-            $signatureKeys = array_filter(
-                $jwkData['keys'],
-                fn($key) =>
-                ($key['use'] ?? null) === 'sig'
-                && ($key['alg'] ?? null) === 'RS256'
-                && ($key['kid'] ?? null) === $tokenKid
-            );
-
-            if (empty($signatureKeys)) {
-                throw new \RuntimeException('No matching JWK key for "kid" ' . $tokenKid);
-            }
-
-            $jwkSet = JWKSet::createFromKeyData(['keys' => array_values($signatureKeys)]);
-
-            $verifier = new JWSVerifier(new AlgorithmManager([new RS256()]));
-            $jwk = current($jwkSet->all());
-
-
-            if (!$verifier->verifyWithKey($jws, $jwk, 0)) {
-                throw new \RuntimeException('Signature verification failed.');
-            }
-
-            $payload = json_decode($jws->getPayload(), true, 512, JSON_THROW_ON_ERROR);
-            if (!isset($payload['exp']) || $payload['exp'] < time()) {
-                throw new \RuntimeException('Token is expired.');
-            }
-
-            return $payload;
-        } catch (\JsonException $e) {
-            throw new \InvalidArgumentException('Invalid JWT payload JSON.', 0, $e);
-        } catch (\Throwable $e) {
-            throw new \RuntimeException('Unable to validate token: ' . $e->getMessage(), 0, $e);
+        if (!$tokenKid) {
+            throw new \RuntimeException('No "kid" found in JWT header.');
         }
 
+        $matchingKeys = array_filter(
+            $jwkData['keys'],
+            fn($key) =>
+            ($key['use'] ?? null) === 'sig' &&
+            ($key['alg'] ?? null) === 'RS256' &&
+            ($key['kid'] ?? null) === $tokenKid
+        );
+
+        if (empty($matchingKeys)) {
+            throw new \RuntimeException('No matching JWK key for "kid" ' . $tokenKid);
+        }
+
+        $jwkSet = JWKSet::createFromKeyData(['keys' => array_values($matchingKeys)]);
+
+        return current($jwkSet->all());
     }
+
+    private function verifySignature(JWS $jws, JWK $jwk): void
+    {
+        $verifier = new JWSVerifier(new AlgorithmManager([new RS256()]));
+
+        if (!$verifier->verifyWithKey($jws, $jwk, 0)) {
+            throw new \RuntimeException('Signature verification failed.');
+        }
+    }
+
+    private function validateAndExtractPayload(JWS $jws): array
+    {
+        $payload = json_decode($jws->getPayload(), true, 512, JSON_THROW_ON_ERROR);
+
+        if (!isset($payload['exp']) || $payload['exp'] < time()) {
+            throw new \RuntimeException('Token is expired.');
+        }
+
+        return $payload;
+    }
+
+
 }
