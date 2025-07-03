@@ -61,6 +61,7 @@ class KeycloakTokenService
     public function validateTokenFromRequest(Request $request)
     {
         $authHeader = $request->headers->get('Authorization');
+
         if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
             throw new \RuntimeException('No Bearer token found in Authorization header.');
         }
